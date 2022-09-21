@@ -369,6 +369,7 @@ function showStopWatch() {
 
 
   function livesCount(){
+    //console.log('example',example)
     var lives = document.querySelector('h1 span')
     lives.innerText = gLives
 
