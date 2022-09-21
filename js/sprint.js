@@ -43,7 +43,7 @@
 
 //– A Matrix containing cell objects: Each cell:
 // /The model
-var gBoard 
+var gBoard
 
 
 //This is an object by which the board size is set
@@ -71,25 +71,69 @@ var gGame = {
 
 
 
+
+
 //const BOMB = '&#xf1e2'
-const BOMB = 1
-const flag = '🏳 '
+const BOMB = '💣'
+const FLAG = '🏳 '
 const gSize = 4
+const FIRE = '🔥'
+var EMPTY = '🔳'
+var COVERD = '🔲'
+
+var winlSmiley = '😎'
+var normalSmiley = '😃'
+var loselSmiley = '😱'
+
+
 
 
 function initGame() {
 
     gBoard = createBoard()
     renderBoard(gBoard)
-    
-    // gGame.isOn = true
 
+    countActiveNegs(gBoard)
+    gGame.isOn = true
+
+}
+// function changeButton() {
+//     var elButton = document.querySelectorAll('button')
+//     //console.log('elButton',elButton)
+//     for (var i = 0; i < 1; i++) {
+//         var currButton = elButton[i]
+//         console.log('i:', 'currButton', i, currButton)
+
+//         var currText = currButton.innerText
+//         console.log('currText:', currText)
+
+//         if (elButton.innerText === '😃 restart') console.log('hey')
+//         if (elButton.innerText === '👶 easy mode') console.log('easy')
+//         if (elButton.innerText === '🧒 medium mode') console.log('med')
+//         if (elButton.innerText === '🏋 hard mode') console.log('hard')
+//     }
+
+
+//     //console.log('elButton',elButton)
+//     //elButton.innerHTML = normalSmiley
+
+// }
+
+
+function chooseMode(size, mines) {
+    gLevel.SIZE = size
+    gLevel.MINES = mines
+    // console.log('gLevel.size',gLevel.size)
+    // console.log('gLevel.Mines',gLevel.Mines)
+    initGame()
 }
 
 
 function createBoard() {
+
     const board = []
     for (var i = 0; i < gLevel.SIZE; i++) {
+
         board[i] = []
         for (var j = 0; j < gLevel.SIZE; j++) {
             const cell = {
@@ -100,42 +144,179 @@ function createBoard() {
                 image: ''
             }
             board[i][j] = cell
+
         }
     }
-    board[1][1].isMine = true
-    board[1][2].isMine = true
-    // board[1][1] = BOMB
-    // board[1][2] = BOMB
+
+    for (var i = 0; i < gLevel.MINES; i++) {
+
+        var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
+        var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
+
+        board[randIdxI][randIdxJ].isMine = true
+        console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
+    }
+
+
+    // board[1][1].isMine = true
+    // board[1][2].isMine = true
+
+
 
     return board
 }
 
 
- 
+
 function renderBoard(board) {
+    //console.log('renderBoard SIZE',gLevel.SIZE)
 
     var strHTML = '<table border="0"><tbody>'
-    for (var i = 0; i < gSize; i++) {
+    for (var i = 0; i < gLevel.SIZE; i++) {
 
         strHTML += '<tr>'
-        for (var j = 0; j < gSize; j++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
 
             const cell = gBoard[i][j]
-            const className = (cell.isMine) ? cell.image='💣' : cell.image= '🧂'
+            //const className = (cell.isMine) ? cell.image = '💣' : cell.image = '🧂'
+            cell.image = COVERD
+            // i updated class name to cell insted of className and cell.image = covered
+            // if i update the cell to 'cell' i get the style but not the content of the cell
+            strHTML += `<td onclick="cellClicked(this, ${i}, ${j})" class="${cell}">${cell.image}
+  
+            
 
-            strHTML += `<td onclick="cellClicked(this, ${i}, ${j})" class="${className}">${cell.image}  
             </td>`
         }
         strHTML += '</tr>'
     }
     strHTML += '</tbody></table>'
-    
+
     var elTable = document.querySelector('table')
     elTable.innerHTML = strHTML
 }
 
 
-function cellClicked(elCell, i, j){ //Called when a cell (td) is clicked
-    console.log('hello');
+function cellClicked(elCell, i, j) { //Called when a cell (td) is clicked
+    // console.log('hello');
+    console.log('gBoard[i][j]', gBoard[i][j])
 
-} 
+
+    if (gBoard[i][j].isMine) { // if its a mine
+        // update the model
+        gBoard[i][j].isShown = true
+
+        // update the DOM
+        elCell.innerHTML = BOMB
+        gameOver()
+    }
+
+    if (!gBoard[i][j].isMine) { // if its a number
+        // update the model
+        gBoard[i][j].isShown = true
+
+        // update the DOM
+        elCell.innerHTML = gBoard[i][j].minesAroundCount
+
+    }
+
+    if (!gBoard[i][j].isMine && gBoard[i][j].minesAroundCount === 0) { // if its a empty cell
+        
+        expandShown(gBoard, elCell, i, j)
+        //gBoard[i][j].isShown = true
+
+        
+        //renderBoard(board)
+
+    }
+
+}
+
+function expandShown(board, elCell, rowIdx, colIdx) {
+
+
+    var count = 0
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j >= board[0].length) continue
+            var currCell = board[i][j]
+            // update the model
+            currCell.isShown = true
+
+            // // update the DOM
+
+            
+                // Get the element that was clicked on
+                var cell = elCell;
+                var row, index;
+                // If it's a td, update the innerHTML
+                if (cell && cell.tagName.toLowerCase() == 'td') {
+                  // Get the row that the cell is in
+                  row = cell.parentNode;
+                  // Get index of cell to right
+                  index = cell.cellIndex + 1;
+                  // Make sure cell to right exists
+                  if (row.cells[index]) {
+                    // Update clicked on cell
+                    cell.innerHTML = currCell.minesAroundCount;
+                  }
+                }
+              
+
+            // if(currCell.minesAroundCount != 0 ){
+            //     elCell.innerHTML = currCell.minesAroundCount
+            // }else {
+            //     elCell.innerHTML = EMPTY
+            // }
+        }
+        //renderBoard(gBoard)
+    }
+    //return count
+
+
+}
+
+
+function gameOver() {
+    console.log('Game Over')
+
+    gGame.isOn = false
+    gGame.score = 0
+    //clearInterval(gIntervalGhosts)
+    //document.querySelector('button').style.display = 'block'
+
+
+}
+function renderCell(i, j, value) {
+    // Select the elCell and set the value
+    const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
+    elCell.innerHTML = value
+}
+
+
+function countActiveNegs(board) {
+    for (var rowIdx = 0; rowIdx < gLevel.SIZE; rowIdx++) {
+        for (var colIdx = 0; colIdx < gLevel.SIZE; colIdx++) {
+
+            var count = 0
+            for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+                if (i < 0 || i >= gLevel.SIZE) continue
+                for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+                    if (i === rowIdx && j === colIdx) continue
+                    if (j < 0 || j >= gLevel.SIZE) continue
+                    var currCell = board[i][j]
+                    if (currCell.isMine) board[rowIdx][colIdx].minesAroundCount++
+                }
+            }
+        }
+    }
+    //return count
+}
+
+
+
+
+function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}

@@ -7,8 +7,17 @@
     <link rel="stylesheet" href="css/sprint.css">
 </head>
 
-<body onkeyup="handleKey(event)" onload="initGame()">
-    <button  onclick="init()">restartGame!</button>
+<body  onload="initGame()">
+    <!-- <button id="restart" onclick="changeButton()">😃 restart</button>
+    <button id="easy" onclick="changeButton()">👶 easy mode</button>
+    <button id="medium" onclick="changeButton()">🧒 medium mode</button>
+    <button id="hard" onclick="changeButton()">🏋 hard mode</button>
+   -->
+    <button onclick="initGame()">😃 restart</button>
+    <button onclick="chooseMode(4,2)">👶 easy mode</button>
+    <button onclick="chooseMode(8,1)">🧒 medium mode</button>
+    <button onclick="chooseMode(12,32)">🏋 hard mode</button>
+       
 
     <h1>Mine Sweeper</h1>
     <table>
@@ -19,3 +28,7 @@
 </body>
 
 </html>
+
+<!-- o Beginner (4 * 4 with 2 MINES)
+o Medium (8 * 8 with 14 MINES)
+o Expert (12 * 12 with 32 MINES) -->
