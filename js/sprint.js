@@ -85,18 +85,14 @@ var winlSmiley = '😎'
 var normalSmiley = '😃'
 var loselSmiley = '😱'
 
+var gtimerInterval = 0
+var gLives = 1
 
 
 
-function initGame() {
 
-    gBoard = createBoard()
-    renderBoard(gBoard)
 
-    countActiveNegs(gBoard)
-    gGame.isOn = true
 
-}
 // function changeButton() {
 //     var elButton = document.querySelectorAll('button')
 //     //console.log('elButton',elButton)
@@ -118,7 +114,22 @@ function initGame() {
 //     //elButton.innerHTML = normalSmiley
 
 // }
+var startStopWatch = 1 
 
+function initGame() {
+    var elButton = document.querySelector('button')
+    elButton.innerText = '😃'
+    gLives = 3
+    livesCount()
+    gBoard = createBoard()
+    renderBoard(gBoard)
+
+    setMinesNegsCount(gBoard)
+    gGame.isOn = true
+
+    var stopWatch = document.querySelector('.stopWatch span')
+
+}
 
 function chooseMode(size, mines) {
     gLevel.SIZE = size
@@ -154,7 +165,7 @@ function createBoard() {
         var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
 
         board[randIdxI][randIdxJ].isMine = true
-        console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
+        //console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
     }
 
 
@@ -199,16 +210,25 @@ function renderBoard(board) {
 
 function cellClicked(elCell, i, j) { //Called when a cell (td) is clicked
     // console.log('hello');
-    console.log('gBoard[i][j]', gBoard[i][j])
-
+    //console.log('gBoard[i][j]', gBoard[i][j])
+    if (startStopWatch===1){
+        showStopWatch()
+        startStopWatch = 0 
+    }
+    //showStopWatch()
 
     if (gBoard[i][j].isMine) { // if its a mine
         // update the model
         gBoard[i][j].isShown = true
+        gLives--
+        if (gLives===0)gameOver()
+        
+        
 
         // update the DOM
         elCell.innerHTML = BOMB
-        gameOver()
+        var lives = document.querySelector('h1 span')
+        lives.innerText = gLives
     }
 
     if (!gBoard[i][j].isMine) { // if its a number
@@ -221,11 +241,11 @@ function cellClicked(elCell, i, j) { //Called when a cell (td) is clicked
     }
 
     if (!gBoard[i][j].isMine && gBoard[i][j].minesAroundCount === 0) { // if its a empty cell
-        
-        expandShown(gBoard, elCell, i, j)
+
+        //expandShown(gBoard, elCell, i, j)
         //gBoard[i][j].isShown = true
 
-        
+
         //renderBoard(board)
 
     }
@@ -244,31 +264,12 @@ function expandShown(board, elCell, rowIdx, colIdx) {
             // update the model
             currCell.isShown = true
 
-            // // update the DOM
 
-            
-                // Get the element that was clicked on
-                var cell = elCell;
-                var row, index;
-                // If it's a td, update the innerHTML
-                if (cell && cell.tagName.toLowerCase() == 'td') {
-                  // Get the row that the cell is in
-                  row = cell.parentNode;
-                  // Get index of cell to right
-                  index = cell.cellIndex + 1;
-                  // Make sure cell to right exists
-                  if (row.cells[index]) {
-                    // Update clicked on cell
-                    cell.innerHTML = currCell.minesAroundCount;
-                  }
-                }
-              
-
-            // if(currCell.minesAroundCount != 0 ){
-            //     elCell.innerHTML = currCell.minesAroundCount
-            // }else {
-            //     elCell.innerHTML = EMPTY
-            // }
+            if(currCell.minesAroundCount != 0 ){ // 
+                elCell.innerHTML = currCell.minesAroundCount
+            }else {
+                elCell.innerHTML = EMPTY
+            }
         }
         //renderBoard(gBoard)
     }
@@ -281,10 +282,17 @@ function expandShown(board, elCell, rowIdx, colIdx) {
 function gameOver() {
     console.log('Game Over')
 
+    var elButton = document.querySelector('button')
+    elButton.innerText = '😱'
+
+    var stopWatch = document.querySelector('.stopWatch span')
+    stopWatch.innerText = ''
+
     gGame.isOn = false
     gGame.score = 0
     //clearInterval(gIntervalGhosts)
     //document.querySelector('button').style.display = 'block'
+    clearInterval(gtimerInterval)
 
 
 }
@@ -294,25 +302,47 @@ function renderCell(i, j, value) {
     elCell.innerHTML = value
 }
 
-
-function countActiveNegs(board) {
+function setMinesNegsCount(board){
+    var counter = 0 
     for (var rowIdx = 0; rowIdx < gLevel.SIZE; rowIdx++) {
         for (var colIdx = 0; colIdx < gLevel.SIZE; colIdx++) {
-
-            var count = 0
-            for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
-                if (i < 0 || i >= gLevel.SIZE) continue
-                for (var j = colIdx - 1; j <= colIdx + 1; j++) {
-                    if (i === rowIdx && j === colIdx) continue
-                    if (j < 0 || j >= gLevel.SIZE) continue
-                    var currCell = board[i][j]
-                    if (currCell.isMine) board[rowIdx][colIdx].minesAroundCount++
-                }
-            }
+            var counter = countActiveNegs(board, rowIdx, colIdx)
+            board[rowIdx][colIdx].minesAroundCount = counter
         }
     }
-    //return count
 }
+
+function countActiveNegs(board, rowIdx, colIdx) {
+    var count = 0
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (i === rowIdx && j === colIdx) continue
+            if (j < 0 || j >= board[0].length) continue
+            var currCell = board[i][j]
+            if (currCell.isMine) count++
+        }
+    }
+    return count
+}
+// function countActiveNegs(board, rowIdx, colIdx) {
+
+
+//     var count = 0
+//     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+//         if (i < 0 || i >= gLevel.SIZE) continue
+//         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+//             if (i === rowIdx && j === colIdx) continue
+//             if (j < 0 || j >= gLevel.SIZE) continue
+//             var currCell = board[i][j]
+//             if (currCell.isMine) board[rowIdx][colIdx].minesAroundCount++
+//         }
+//     }
+// }
+
+
+
+
 
 
 
@@ -320,3 +350,26 @@ function countActiveNegs(board) {
 function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
+
+
+function showStopWatch() {
+    var stopWatch = document.querySelector('.stopWatch span')
+    var start = Date.now()
+  
+    gtimerInterval = setInterval(function () {
+      var currTs = Date.now()
+  
+      var secs = parseInt((currTs - start) / 1000)
+
+      stopWatch.innerText = ` ${secs}`
+    }, 100)
+  }
+
+  
+
+
+  function livesCount(){
+    var lives = document.querySelector('h1 span')
+    lives.innerText = gLives
+
+  }

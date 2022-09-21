@@ -10,3 +10,10 @@
     background: linear-gradient(to top, #761818, #761818, #761818, #761818, #761818, #B54041, #F3686A);
     cursor: pointer;
 }
+
+.stopWatch {
+    background-color: rgb(245, 193, 38);
+    height: 10;
+    width: 100px;
+
+}
