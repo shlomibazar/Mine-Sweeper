@@ -10,37 +10,38 @@
 <body class="body" onload="initGame()">
     <div class="bg">
         <div class="bg" style="background-image: url('img/1.jpeg');">
-            
+
             <div class="score">
                 score: <span></span>
             </div>
 
             <div class="restart">
-                <button onclick="initGame()">😃 restart</button>
+                <div class="restartbutton">
+                    <button onclick="initGame()">😃 restart</button>
+                </div>
             </div>
-            
-            
             
             <button onclick="chooseMode(4,2)">👶 easy mode</button>
             <button onclick="chooseMode(8,14)">🧒 medium mode</button>
             <button onclick="chooseMode(12,32)">🏋 hard mode</button>
+            <!-- <button onclick="hint()">hint ❔ </button> -->
             <div class="game box">
                 <div class="game box" style="background-color: green;">
 
-                <h1>Mine Sweeper</h1>
-                <table>
-                    <tbody class="board"></tbody>
-                </table>
-                <script src="js/sprint.js"></script>
+                    <h1>Mine Sweeper</h1>
+                    <table>
+                        <tbody class="board"></tbody>
+                    </table>
+                    <script src="js/sprint.js"></script>
 
 
-                <h2>lives: <span></span> </h2>
+                    <h2>lives: <span></span> </h2>
 
-                <div class="stopWatch">
-                    Elapsed Time: <span></span>
+                    <div class="stopWatch">
+                        Elapsed Time: <span></span>
+                    </div>
                 </div>
             </div>
-        </div>
 </body>
 
 </html>

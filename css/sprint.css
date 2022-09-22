@@ -1,7 +1,12 @@
 
+td:hover {
+    background-color: yellow;
+  }
+
 .cell {
     width: 20px;
     height: 20px;
+   
 }
 
 .bomb {
@@ -22,12 +27,13 @@
 .restart {
     width: 30px;
     height: 30px;
-    position: fixed;
-
+    /* position: fixed;
+    display: flex; */
+    display: flex ;
     margin: 20px;
-    margin-bottom: 42px;
+    margin-bottom: 22px;
     position: relative;
-    margin-left: 150px;
+    margin-left: 140px;
 }
 
 .h2 {
@@ -42,4 +48,9 @@
     background: blue;
     font-size: 1.5em;
     display: inline;
+}
+
+.restartbutton{
+    margin: 20px;
+
 }

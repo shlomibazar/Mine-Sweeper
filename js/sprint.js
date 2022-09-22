@@ -43,24 +43,11 @@
 
 //– A Matrix containing cell objects: Each cell:
 // /The model
-var gBoard
 
-
-//This is an object by which the board size is set
-// (in this case: 4x4 board and how many mines to put)
 var gLevel = {
     SIZE: 4,
     MINES: 2
 };
-
-
-
-// This is an object in which you can 
-// keep and update the current game state:
-// isOn: Boolean, when true we let the user play
-// shownCount: How many cells are shown 
-// markedCount: How many cells are marked (with a flag)
-// secsPassed: How many seconds passed
 
 var gGame = {
     isOn: false,
@@ -68,11 +55,6 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0,
 }
-
-
-gGame.markedCount
-
-
 
 //const BOMB = '&#xf1e2'
 const BOMB = '💣'
@@ -88,29 +70,39 @@ const loselSmiley = '😱'
 
 var gtimerInterval = 0
 var gLives = 1
+var gBoard
 var firstClick = 1
 
 
 function initGame() {
 
-
-    var elButton = document.querySelector('button')
-    elButton.innerText = '😃'
-
-    gGame.markedCount = 0
-    gGame.shownCount = 0
-    gLives = 3
-    livesCount()
-
+    varInit()
+    
     gBoard = createBoard()
+    addBombsRandLocation(gBoard)
     renderBoard(gBoard)
     setMinesNegsCount(gBoard)
 
     var stopWatch = document.querySelector('.stopWatch span')
     
-
     gGame.isOn = true
 
+}
+
+function varInit(){
+    var elButton = document.querySelector('button')
+    elButton.innerText = '😃'
+
+    var stopWatch = document.querySelector('.stopWatch span')
+    stopWatch.innerText = ''
+
+    var score = document.querySelector('.score span')
+    score.innerText = 0
+
+    gGame.markedCount = 0
+    gGame.shownCount = 0
+    gLives = 3
+    livesCount()
 
 }
 
@@ -118,11 +110,8 @@ function chooseMode(size, mines) {
     gLevel.SIZE = size
     gLevel.MINES = mines
 
-    var stopWatch = document.querySelector('.stopWatch span')
-    stopWatch.innerText = ''
+    varInit()
 
-    var score = document.querySelector('.score span')
-    score.innerText = 0
     clearInterval(gtimerInterval)
     firstClick = 1
     initGame()
@@ -148,13 +137,13 @@ function createBoard() {
         }
     }
 
-    for (var i = 0; i < gLevel.MINES; i++) {
+    // for (var i = 0; i < gLevel.MINES; i++) {
 
-        var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
-        var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
+    //     var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
+    //     var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
         
-        board[randIdxI][randIdxJ].isMine = true
-    }
+    //     board[randIdxI][randIdxJ].isMine = true
+    // }
     return board
 }
 
@@ -180,14 +169,9 @@ function renderBoard(board) {
                 } else if (cell.isMarked) { // if its a flag
                     cell.image = FLAG
                 }
-
-                //const className = (cell.isMine) ? cell.image = '💣' : cell.image = COVERD
             }
             if (!cell.isShown) cell.image = COVERD
 
-            // const className = (cell.isMine) ? cell.image = '💣' : cell.image = COVERD
-            // i updated class name to cell insted of className and cell.image = covered
-            // if i update the cell to 'cell' i get the style but not the content of the cell
             strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="cell">${cell.image}
 
             </td>`
@@ -220,6 +204,7 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
         gBoard[i][j].isShown = true
         //dom
         elCell.innerHTML = FLAG
+        if(isOver()) gameOver()
         return
 
 
@@ -242,16 +227,15 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
     if (firstClick === 1) {
         showStopWatch()
         firstClick = 0
-        //addBombsRandLocation()
-        //renderBoard()
     }
 
     if (gBoard[i][j].isMine) { // if its a mine
         
         // update the model
+        if(!gBoard[i][j].isShown) gLives--
+
         gBoard[i][j].isShown = true
-        
-        gLives--
+                
         if (gLives === 0) gameOver()
         
         // update the DOM
@@ -284,11 +268,8 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
         renderBoard(gBoard)
     }
 
-    if ((gGame.markedCount === gLevel.MINES ) &&
-     (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
-     {
-        gameOver()
-     }
+    if (isOver())gameOver()
+
 
 }
 
@@ -329,11 +310,15 @@ function showAllMines(board) {
 // o LOSE: when clicking a mine, all mines should be revealed
 // o WIN: all the mines are flagged, and all the other cells are shown
 
+function isOver(){
+    return ((gGame.markedCount === gLevel.MINES ) &&
+    (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
+}
+
 function gameOver() {
     console.log('Game Over')
     
-    if ((gGame.markedCount === gLevel.MINES ) &&
-    (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
+    if (isOver())
     {
         console.log('u win')
         var elButton = document.querySelector('button')
@@ -343,13 +328,12 @@ function gameOver() {
         console.log('u lose')
         var elButton = document.querySelector('button')
         elButton.innerText = loselSmiley
+        showAllMines(gBoard)
     }
 
-    showAllMines(gBoard)
 
 
-    var stopWatch = document.querySelector('.stopWatch span')
-    stopWatch.innerText = ''
+
     clearInterval(gtimerInterval)
 
     gGame.isOn = false
@@ -385,17 +369,18 @@ function countActiveNegs(board, rowIdx, colIdx) {
 
 
 
-function addBombsRandLocation() {
+function addBombsRandLocation(board) {
     for (var i = 0; i < gLevel.MINES; i++) {
         
         var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
         var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
         
-        gBoard[randIdxI][randIdxJ].isMine = true
+        board[randIdxI][randIdxJ].isMine = true
         //console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
     }
     
 }
+
 
 
 function livesCount() {
