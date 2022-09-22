@@ -3,47 +3,6 @@
 
 
 
-
-
-// initGame() - done
-// //This is called when page loads
-
-// buildBoard() 
-// Builds the board Set mines at random
-//  locations Call setMinesNegsCount() Return the created board
-
-
-// renderBoard(board) Render the board as a <table> to the page
-
-// setMinesNegsCount(board)
-// Count mines around each cell and set the cell's minesAroundCount.
-
-
-
-// cellClicked(elCell, i, j) Called when a cell (td) is clicked
-
-// cellMarked(elCell) Called on right click to mark a cell 
-// (suspected to be a mine) Search the web (and implement) 
-// how to hide the context menu on right click
-
-// checkGameOver() Game ends when all mines are marked,
-//  and all the other cells are shown
-
-
-//  expandShown(board, elCell, i, j) When user clicks a cell 
-//  with no mines around, we need to open not only that cell,
-//   but also its neighbors. 
-//   NOTE: start with a basic implementation 
-//   that only opens the non-mine 1st degree neighbors BONUS: 
-//  if you have the time later,
-//   try to work more like the real algorithm 
-//   (see description at the Bonuses section below)
-
-
-
-//– A Matrix containing cell objects: Each cell:
-// /The model
-
 var gLevel = {
     SIZE: 4,
     MINES: 2
@@ -77,19 +36,21 @@ var firstClick = 1
 function initGame() {
 
     varInit()
-    
+
     gBoard = createBoard()
+    //addBombs7boom(gBoard) // it works but no time to apply
     addBombsRandLocation(gBoard)
+
     renderBoard(gBoard)
     setMinesNegsCount(gBoard)
 
     var stopWatch = document.querySelector('.stopWatch span')
-    
+
     gGame.isOn = true
 
 }
 
-function varInit(){
+function varInit() {
     var elButton = document.querySelector('button')
     elButton.innerText = '😃'
 
@@ -109,8 +70,6 @@ function varInit(){
 function chooseMode(size, mines) {
     gLevel.SIZE = size
     gLevel.MINES = mines
-
-    varInit()
 
     clearInterval(gtimerInterval)
     firstClick = 1
@@ -136,14 +95,6 @@ function createBoard() {
 
         }
     }
-
-    // for (var i = 0; i < gLevel.MINES; i++) {
-
-    //     var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
-    //     var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
-        
-    //     board[randIdxI][randIdxJ].isMine = true
-    // }
     return board
 }
 
@@ -173,9 +124,7 @@ function renderBoard(board) {
             if (!cell.isShown) cell.image = COVERD
 
             strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="cell">${cell.image}
-
             </td>`
-
         }
         strHTML += '</tr>'
     }
@@ -204,7 +153,8 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
         gBoard[i][j].isShown = true
         //dom
         elCell.innerHTML = FLAG
-        if(isOver()) gameOver()
+
+        if (isOver()) gameOver()
         return
 
 
@@ -230,31 +180,31 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
     }
 
     if (gBoard[i][j].isMine) { // if its a mine
-        
+
         // update the model
-        if(!gBoard[i][j].isShown) gLives--
+        if (!gBoard[i][j].isShown) gLives--
 
         gBoard[i][j].isShown = true
-                
+
         if (gLives === 0) gameOver()
-        
+
         // update the DOM
         elCell.innerHTML = BOMB
         var lives = document.querySelector('h2 span')
         lives.innerText = gLives
     }
-    
+
     if (!gBoard[i][j].isMine && !gBoard[i][j].isMarked && !gBoard[i][j].isShown) { // if its a number
-        
+
         // update the model
         gGame.shownCount++
         updateScore()
         gBoard[i][j].isShown = true
 
         // update the DOM
-        if (gBoard[i][j].minesAroundCount === 0){
+        if (gBoard[i][j].minesAroundCount === 0) {
             elCell.innerHTML = EMPTY
-        }else{
+        } else {
             elCell.innerHTML = gBoard[i][j].minesAroundCount
         }
     }
@@ -268,7 +218,7 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
         renderBoard(gBoard)
     }
 
-    if (isOver())gameOver()
+    if (isOver()) gameOver()
 
 
 }
@@ -281,12 +231,12 @@ function expandShown(board, elCell, rowIdx, colIdx) {
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             var currCell = board[i][j]
-            if (!currCell.isMine && !currCell.isMarked )
+            if (!currCell.isMine && !currCell.isMarked)
                 // update the model
                 if (currCell.isShown) continue
                 //count++
                 else count++
-                currCell.isShown = true
+            currCell.isShown = true
             // the dom update is outside of curr function
         }
     }
@@ -296,10 +246,10 @@ function expandShown(board, elCell, rowIdx, colIdx) {
 function showAllMines(board) {
     for (var i = 0; i < gLevel.SIZE; i++) {
         for (var j = 0; j < gLevel.SIZE; j++) {
-            if (board[i][j].isMine){
+            if (board[i][j].isMine) {
 
                 board[i][j].isShown = true
-            } 
+            }
         }
     }
     renderBoard()
@@ -310,21 +260,20 @@ function showAllMines(board) {
 // o LOSE: when clicking a mine, all mines should be revealed
 // o WIN: all the mines are flagged, and all the other cells are shown
 
-function isOver(){
-    return ((gGame.markedCount === gLevel.MINES ) &&
-    (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
+function isOver() {
+    return ((gGame.markedCount === gLevel.MINES) &&
+        (gLevel.SIZE * gLevel.SIZE - gGame.shownCount === gLevel.MINES))
 }
 
 function gameOver() {
     console.log('Game Over')
-    
-    if (isOver())
-    {
+
+    if (isOver()) {
         console.log('u win')
         var elButton = document.querySelector('button')
         elButton.innerText = winlSmiley
-        
-    }else{
+
+    } else {
         console.log('u lose')
         var elButton = document.querySelector('button')
         elButton.innerText = loselSmiley
@@ -371,14 +320,25 @@ function countActiveNegs(board, rowIdx, colIdx) {
 
 function addBombsRandLocation(board) {
     for (var i = 0; i < gLevel.MINES; i++) {
-        
+
         var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
         var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
-        
+
         board[randIdxI][randIdxJ].isMine = true
         //console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
     }
-    
+
+}
+function addBombs7boom(board) {
+    var counter = -1
+    for (var i = 0; i < gLevel.SIZE; i++) {
+        for (var j = 0; j < gLevel.SIZE; j++) {
+            counter++
+            if (counter%7 === 0 || (counter)% 10 === 7) {
+                board[i][j].isMine = true
+            }
+        }
+    }
 }
 
 
@@ -389,7 +349,7 @@ function livesCount() {
     lives.innerText = gLives
 
 }
-function updateScore(){
+function updateScore() {
     var score = document.querySelector('.score span')
     score.innerText = gGame.shownCount
 }
