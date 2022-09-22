@@ -70,6 +70,7 @@ var gGame = {
 }
 
 
+gGame.markedCount
 
 
 
@@ -78,67 +79,52 @@ const BOMB = '💣'
 const FLAG = '🏳 '
 const gSize = 4
 const FIRE = '🔥'
-var EMPTY = '🔳'
-var COVERD = '🔲'
+const EMPTY = '🔳'
+const COVERD = '🔲'
 
-var winlSmiley = '😎'
-var normalSmiley = '😃'
-var loselSmiley = '😱'
+const winlSmiley = '😎'
+const normalSmiley = '😃'
+const loselSmiley = '😱'
 
 var gtimerInterval = 0
 var gLives = 1
-
-
-
-
-
-
-// function changeButton() {
-//     var elButton = document.querySelectorAll('button')
-//     //console.log('elButton',elButton)
-//     for (var i = 0; i < 1; i++) {
-//         var currButton = elButton[i]
-//         console.log('i:', 'currButton', i, currButton)
-
-//         var currText = currButton.innerText
-//         console.log('currText:', currText)
-
-//         if (elButton.innerText === '😃 restart') console.log('hey')
-//         if (elButton.innerText === '👶 easy mode') console.log('easy')
-//         if (elButton.innerText === '🧒 medium mode') console.log('med')
-//         if (elButton.innerText === '🏋 hard mode') console.log('hard')
-//     }
-
-
-//     //console.log('elButton',elButton)
-//     //elButton.innerHTML = normalSmiley
-
-// }
 var firstClick = 1
 
+
 function initGame() {
+
+
     var elButton = document.querySelector('button')
     elButton.innerText = '😃'
 
+    gGame.markedCount = 0
+    gGame.shownCount = 0
     gLives = 3
     livesCount()
 
     gBoard = createBoard()
     renderBoard(gBoard)
-
     setMinesNegsCount(gBoard)
+
+    var stopWatch = document.querySelector('.stopWatch span')
+    
 
     gGame.isOn = true
 
-    var stopWatch = document.querySelector('.stopWatch span')
 
 }
 
 function chooseMode(size, mines) {
     gLevel.SIZE = size
     gLevel.MINES = mines
-    // console.log('gLevel.size',gLevel.size)
-    // console.log('gLevel.Mines',gLevel.Mines)
+
+    var stopWatch = document.querySelector('.stopWatch span')
+    stopWatch.innerText = ''
+
+    var score = document.querySelector('.score span')
+    score.innerText = 0
+    clearInterval(gtimerInterval)
+    firstClick = 1
     initGame()
 }
 
@@ -166,17 +152,9 @@ function createBoard() {
 
         var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
         var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
-
+        
         board[randIdxI][randIdxJ].isMine = true
-        //console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
     }
-
-
-    // board[1][1].isMine = true
-    // board[1][2].isMine = true
-
-
-
     return board
 }
 
@@ -195,7 +173,7 @@ function renderBoard(board) {
             if (cell.isShown) {
                 if (cell.isMine && !cell.isMarked) { // if its a bomb
                     cell.image = BOMB
-                } else if (cell.image === EMPTY && !cell.isMarked) { // if its empty 1
+                } else if (cell.minesAroundCount === 0 && !cell.isMarked) { // if its empty 1
                     cell.image = EMPTY
                 } else if (!cell.isMine && !cell.isMarked) { // if its not empty(got negs)
                     cell.image = cell.minesAroundCount
@@ -210,7 +188,7 @@ function renderBoard(board) {
             // const className = (cell.isMine) ? cell.image = '💣' : cell.image = COVERD
             // i updated class name to cell insted of className and cell.image = covered
             // if i update the cell to 'cell' i get the style but not the content of the cell
-            strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="${cell}">${cell.image}
+            strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="cell">${cell.image}
 
             </td>`
 
@@ -226,86 +204,91 @@ function renderBoard(board) {
 
 function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
 
+    if (!gGame.isOn) return
+
     //"Right Click is disabled"
     document.addEventListener('contextmenu',
         event => event.preventDefault());
 
-
-    console.log('event.button', event.button)
     var elEventButton = +event.button
-
+    //check for right click of mouse for flags
     if (elEventButton === 2 && !gBoard[i][j].isMarked) {
+
+        //modal
+        gGame.markedCount++
         gBoard[i][j].isMarked = true
         gBoard[i][j].isShown = true
-
+        //dom
         elCell.innerHTML = FLAG
         return
 
 
     } else if (elEventButton === 2 && gBoard[i][j].isMarked) {
         // modal
+        gGame.markedCount--
         gBoard[i][j].isMarked = false
         gBoard[i][j].isShown = false
         //dom
         elCell.innerHTML = COVERD
         return
     }
-
+    // if its flag and left click - dont do anything
     if (elEventButton === 0 && gBoard[i][j].isMarked) {
         console.log('hey')
         return
 
     }
 
-
-
-
-
-
-    // console.log('hello');
-    //console.log('gBoard[i][j]', gBoard[i][j])
-    // console.log('elCell.dataset.i',elCell.dataset.i)
-    // //elCell.dataset.i.minesAroundCount=100 
-    // console.log('elCell',elCell)
-    if (!gGame.isOn) return
-
-
     if (firstClick === 1) {
         showStopWatch()
         firstClick = 0
         //addBombsRandLocation()
-        renderBoard()
+        //renderBoard()
     }
-    //showStopWatch()
 
     if (gBoard[i][j].isMine) { // if its a mine
+        
         // update the model
         gBoard[i][j].isShown = true
+        
         gLives--
         if (gLives === 0) gameOver()
-
+        
         // update the DOM
         elCell.innerHTML = BOMB
-        var lives = document.querySelector('h1 span')
+        var lives = document.querySelector('h2 span')
         lives.innerText = gLives
     }
-
-    if (!gBoard[i][j].isMine) { // if its a number
+    
+    if (!gBoard[i][j].isMine && !gBoard[i][j].isMarked && !gBoard[i][j].isShown) { // if its a number
+        
         // update the model
+        gGame.shownCount++
+        updateScore()
         gBoard[i][j].isShown = true
 
         // update the DOM
-        elCell.innerHTML = gBoard[i][j].minesAroundCount
-
+        if (gBoard[i][j].minesAroundCount === 0){
+            elCell.innerHTML = EMPTY
+        }else{
+            elCell.innerHTML = gBoard[i][j].minesAroundCount
+        }
     }
 
     if (!gBoard[i][j].isMine &&
         gBoard[i][j].minesAroundCount === 0) { // if its a empty cell
 
-        expandShown(gBoard, elCell, i, j)
+        var counter = expandShown(gBoard, elCell, i, j)
+        gGame.shownCount += counter//-1 becuase he update it before he enter expand func
+        updateScore()
         renderBoard(gBoard)
-
     }
+
+    if ((gGame.markedCount === gLevel.MINES ) &&
+     (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
+     {
+        gameOver()
+     }
 
 }
 
@@ -317,12 +300,16 @@ function expandShown(board, elCell, rowIdx, colIdx) {
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[0].length) continue
             var currCell = board[i][j]
-            if (!currCell.isMine && !currCell.isMarked)
+            if (!currCell.isMine && !currCell.isMarked )
                 // update the model
+                if (currCell.isShown) continue
+                //count++
+                else count++
                 currCell.isShown = true
             // the dom update is outside of curr function
         }
     }
+    return count
 }
 
 function showAllMines(board) {
@@ -344,26 +331,33 @@ function showAllMines(board) {
 
 function gameOver() {
     console.log('Game Over')
+    
+    if ((gGame.markedCount === gLevel.MINES ) &&
+    (gLevel.SIZE*gLevel.SIZE - gGame.shownCount === gLevel.MINES))
+    {
+        console.log('u win')
+        var elButton = document.querySelector('button')
+        elButton.innerText = winlSmiley
+        
+    }else{
+        console.log('u lose')
+        var elButton = document.querySelector('button')
+        elButton.innerText = loselSmiley
+    }
+
     showAllMines(gBoard)
-    var elButton = document.querySelector('button')
-    elButton.innerText = '😱'
+
 
     var stopWatch = document.querySelector('.stopWatch span')
     stopWatch.innerText = ''
+    clearInterval(gtimerInterval)
 
     gGame.isOn = false
     gGame.score = 0
-    //clearInterval(gIntervalGhosts)
-    //document.querySelector('button').style.display = 'block'
-    clearInterval(gtimerInterval)
 
 
 }
-function renderCell(i, j, value) {
-    // Select the elCell and set the value
-    const elCell = document.querySelector(`.cell-${location.i}-${location.j}`)
-    elCell.innerHTML = value
-}
+
 
 function setMinesNegsCount(board) {
     var counter = 0
@@ -388,37 +382,36 @@ function countActiveNegs(board, rowIdx, colIdx) {
     }
     return count
 }
-// function countActiveNegs(board, rowIdx, colIdx) {
-
-
-//     var count = 0
-//     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
-//         if (i < 0 || i >= gLevel.SIZE) continue
-//         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
-//             if (i === rowIdx && j === colIdx) continue
-//             if (j < 0 || j >= gLevel.SIZE) continue
-//             var currCell = board[i][j]
-//             if (currCell.isMine) board[rowIdx][colIdx].minesAroundCount++
-//         }
-//     }
-// }
-
-
 
 
 
 function addBombsRandLocation() {
     for (var i = 0; i < gLevel.MINES; i++) {
-
+        
         var randIdxI = getRandomIntInclusive(1, gLevel.SIZE - 1)
         var randIdxJ = getRandomIntInclusive(1, gLevel.SIZE - 1)
-
+        
         gBoard[randIdxI][randIdxJ].isMine = true
         //console.log('i:', randIdxI, 'j:', randIdxJ, board[randIdxI][randIdxJ])
     }
-
+    
 }
 
+
+function livesCount() {
+    //console.log('example',example)
+    var lives = document.querySelector('h2 span')
+    lives.innerText = gLives
+
+}
+function updateScore(){
+    var score = document.querySelector('.score span')
+    score.innerText = gGame.shownCount
+}
+
+
+
+/////////////////// utils ////////////////////
 
 function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min
@@ -440,10 +433,3 @@ function showStopWatch() {
 
 
 
-
-function livesCount() {
-    //console.log('example',example)
-    var lives = document.querySelector('h1 span')
-    lives.innerText = gLives
-
-}

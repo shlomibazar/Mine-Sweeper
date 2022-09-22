@@ -7,29 +7,40 @@
     <link rel="stylesheet" href="css/sprint.css">
 </head>
 
-<body  onload="initGame()">
-    <!-- <button id="restart" onclick="changeButton()">😃 restart</button>
-    <button id="easy" onclick="changeButton()">👶 easy mode</button>
-    <button id="medium" onclick="changeButton()">🧒 medium mode</button>
-    <button id="hard" onclick="changeButton()">🏋 hard mode</button>
-   -->
-    <button onclick="initGame()">😃 restart</button>
-    <button onclick="chooseMode(4,2)">👶 easy mode</button>
-    <button onclick="chooseMode(8,60)">🧒 medium mode</button>
-    <button onclick="chooseMode(12,32)">🏋 hard mode</button>
-       
+<body class="body" onload="initGame()">
+    <div class="bg">
+        <div class="bg" style="background-image: url('img/1.jpeg');">
+            
+            <div class="score">
+                score: <span></span>
+            </div>
 
-    <h1>Mine Sweeper</h1>
-    <table>
-        <tbody class="board"></tbody>
-    </table>
-    <script src="js/sprint.js"></script>
+            <div class="restart">
+                <button onclick="initGame()">😃 restart</button>
+            </div>
+            
+            
+            
+            <button onclick="chooseMode(4,2)">👶 easy mode</button>
+            <button onclick="chooseMode(8,14)">🧒 medium mode</button>
+            <button onclick="chooseMode(12,32)">🏋 hard mode</button>
+            <div class="game box">
+                <div class="game box" style="background-color: green;">
 
-    <h1>lives: <span></span> </h1>
-    
-    <div class="stopWatch">
-        Elapsed Time: <span></span>
-    </div>
+                <h1>Mine Sweeper</h1>
+                <table>
+                    <tbody class="board"></tbody>
+                </table>
+                <script src="js/sprint.js"></script>
+
+
+                <h2>lives: <span></span> </h2>
+
+                <div class="stopWatch">
+                    Elapsed Time: <span></span>
+                </div>
+            </div>
+        </div>
 </body>
 
 </html>
