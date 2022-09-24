@@ -7,41 +7,54 @@
     <link rel="stylesheet" href="css/sprint.css">
 </head>
 
-<body class="body" onload="initGame()">
-    <div class="bg">
-        <div class="bg" style="background-image: url('img/1.jpeg');">
+<body class="body" onload="initGame()"  style="background-image: url('img/2.jpg');">
+    <h1>Mine Sweeper</h1>
 
-            <div class="score">
-                score: <span></span>
+    <div class="bg" >
+        <div>
+            <div class="stats">
+
+                <div  class="score stat">
+                    score 
+                    <span></span>
+                </div>
+                <div  class="lives stat">
+                    lives
+                    <span></span>
+                </div>
+
+                <div  class="stopWatch stat">
+                    Time
+                    <span></span>
+                </div>
             </div>
-
             <div class="restart">
-                <div class="restartbutton">
+                
                     <button onclick="initGame()">😃 restart</button>
-                </div>
+
             </div>
-            
-            <button onclick="chooseMode(4,2)">👶 easy mode</button>
-            <button onclick="chooseMode(8,14)">🧒 medium mode</button>
-            <button onclick="chooseMode(12,32)">🏋 hard mode</button>
-            <!-- <button onclick="hint()">hint ❔ </button> -->
+
+            <div class="modeButtons">
+
+                <button onclick="chooseMode(4,2)">👶 easy mode</button>
+                <button onclick="chooseMode(8,14)">🧒 medium mode</button>
+                <button onclick="chooseMode(12,32)">🏋 hard mode</button>
+                <!-- <button onclick="hint()">hint ❔ </button> -->
+            </div>
+
+
             <div class="game box">
-                <div class="game box" style="background-color: green;">
-
-                    <h1>Mine Sweeper</h1>
-                    <table>
-                        <tbody class="board"></tbody>
-                    </table>
-                    <script src="js/sprint.js"></script>
 
 
-                    <h2>lives: <span></span> </h2>
+                <table>
+                    <tbody class="board"></tbody>
+                </table>
+                <script src="js/sprint.js"></script>
 
-                    <div class="stopWatch">
-                        Elapsed Time: <span></span>
-                    </div>
-                </div>
+
+
             </div>
+
 </body>
 
 </html>

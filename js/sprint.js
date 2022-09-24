@@ -122,8 +122,8 @@ function renderBoard(board) {
                 }
             }
             if (!cell.isShown) cell.image = COVERD
-
-            strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="cell">${cell.image}
+            var lineStyle = `cell lineOf${gLevel.SIZE}`
+            strHTML += `<td  onmousedown="cellClicked(this, ${i}, ${j},event)" class="${lineStyle}">${cell.image}
             </td>`
         }
         strHTML += '</tr>'
@@ -190,7 +190,7 @@ function cellClicked(elCell, i, j, event) { //Called when a cell (td) is clicked
 
         // update the DOM
         elCell.innerHTML = BOMB
-        var lives = document.querySelector('h2 span')
+        var lives = document.querySelector('.lives span')
         lives.innerText = gLives
     }
 
@@ -345,7 +345,7 @@ function addBombs7boom(board) {
 
 function livesCount() {
     //console.log('example',example)
-    var lives = document.querySelector('h2 span')
+    var lives = document.querySelector('.lives span')
     lives.innerText = gLives
 
 }

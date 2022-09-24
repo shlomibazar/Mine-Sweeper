@@ -1,6 +1,7 @@
 
 td:hover {
     background-color: yellow;
+    CURSOR: POINTER;
   }
 
 .cell {
@@ -14,43 +15,70 @@ td:hover {
     cursor: pointer;
 }
 
-.stopWatch {
-    font-size: 1.5em;
-    display: inline;
-    background-color: green;
-    height: 10;
-    width: 100px;
-
-}
 
 
 .restart {
-    width: 30px;
+    
     height: 30px;
-    /* position: fixed;
-    display: flex; */
-    display: flex ;
+    display: flex;
     margin: 20px;
     margin-bottom: 22px;
     position: relative;
-    margin-left: 140px;
+    flex-direction: row;
+    justify-content: space-evenly;  
+
 }
 
-.h2 {
-    background: rgb(37, 182, 32);
-}
+
 
 .body{
+    
+    background: linear-gradient(to bottom, #321585, #322585, #323585, #761818, #761818, #B54041, #B54041);
     width: 350px;
     height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    justify-content: flex-start;
+    align-items: center;
+    margin: auto;
+
+
+    width: 90%;
+    height: 500px;
 }
-.score{
-    background: blue;
+
+
+.stats{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-between;
+}
+
+.stat{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: bold;
     font-size: 1.5em;
-    display: inline;
 }
 
-.restartbutton{
-    margin: 20px;
+.bg{
+    width: 60%;
+    opacity: 0.7;
+    background-color: aqua;
+}
 
+.modeButtons{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.box{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
